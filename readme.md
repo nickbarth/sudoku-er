@@ -7,7 +7,6 @@ A sudoku solver using image recognition.
 ```bash
 	[~]$ soduku-er sudoku.png
 	> Solution generated `solution.png`.
-	[~]$ open solution.png
 ```
 
 ### License
