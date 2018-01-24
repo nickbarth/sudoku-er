@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
+	_ "fmt"
 	"image"
-	"image/color"
-	"image/draw"
-	"image/png"
-	"os"
+	_ "image/color"
+	_ "image/draw"
+	_ "image/png"
+	_ "os"
 )
 
 type SudokuReader struct {
@@ -15,9 +15,10 @@ type SudokuReader struct {
 	width  int
 }
 
-func NewSudokuReader(file string) *SudokuReader {
+/*
+func NewSudokuReader(filename string) *SudokuReader {
 	image.RegisterFormat("png", "png", png.Decode, png.DecodeConfig)
-	file, _ := os.Open(file)
+	file, _ := os.Open(filename)
 	defer file.Close()
 
 	img, _, _ := image.Decode(file)
@@ -47,7 +48,7 @@ func (s *SudokuReader) floodFill(x int, y int) {
 			s.floodFill(x+1, y)
 		}
 
-		if y+1 < x.height {
+		if y+1 < s.height {
 			s.floodFill(x, y+1)
 		}
 	}
@@ -91,6 +92,4 @@ func (s SudokuReader) Read() {
 	s.deleteBorders()
 	s.parseBoard()
 }
-
-func main() {
-}
+*/
