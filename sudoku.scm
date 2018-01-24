@@ -165,7 +165,9 @@
 
 ; is-solved? : [][]int -> bool
 (define (is-solved? board)
-  (print "ERROR - not implemented"))
+  (and (rows-solved? board)
+       (cols-solved? board)
+       (quad-solved? board)))
 
 ; solve [][]int -> [][]int
 (define (solve board)
