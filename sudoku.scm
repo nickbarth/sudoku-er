@@ -100,6 +100,62 @@
       (print "ERROR - get-quad incorrect"))))
 (test-available-at-position)
 
+; is-solved? : [][]int -> bool
+(define (is-solved? board)
+  
+)
+
+(define (make-board)
+  `((1 2 3 4 5 6 7 8 9)
+    (1 2 3 4 5 6 7 8 9)
+    (1 2 3 4 5 6 7 8 9)
+    (1 2 3 4 5 6 7 8 9)
+    (1 2 3 4 5 6 7 8 9)
+    (1 2 3 4 5 6 7 8 9)
+    (1 2 3 4 5 6 7 8 9)
+    (1 2 3 4 5 6 7 8 9)
+    (1 2 3 4 5 6 7 8 9)))
+
+(define (make-board)
+  `((1 1 1 1 1 1 1 1 1)
+    (2 2 2 2 2 2 2 2 2)
+    (3 3 3 3 3 3 3 3 3)
+    (4 4 4 4 4 4 4 4 4)
+    (5 5 5 5 5 5 5 5 5)
+    (6 6 6 6 6 6 6 6 6)
+    (7 7 7 7 7 7 7 7 7)
+    (8 8 8 8 8 8 8 8 8)
+    (9 9 9 9 9 9 9 9 9)))
+
+(define (make-board)
+  `((1 2 3 1 2 3 1 2 3)
+    (4 5 6 4 5 6 4 5 6)
+    (7 8 9 7 8 9 7 8 9)
+    (1 2 3 1 2 3 1 2 3)
+    (4 5 6 4 5 6 4 5 6)
+    (7 8 9 7 8 9 7 8 9)
+    (1 2 3 1 2 3 1 2 3)
+    (4 5 6 4 5 6 4 5 6)
+    (7 8 9 7 8 9 7 8 9)))
+
+; check rows
+(fold (lambda (row r)
+  (and (equal? (sort row <) '(1 2 3 4 5 6 7 8 9)) r))
+    #t (make-board))
+
+; check cols
+(fold (lambda (col r)
+  (and (equal? (sort (get-column (make-board) col) <) '(1 2 3 4 5 6 7 8 9)) r))
+    #t '(0 1 2 3 4 5 6 7 8))
+
+; check quad
+(fold (lambda (quad r)
+  (and (equal? (sort (get-quad (make-board) (car quad) (cadr quad)) <) '(1 2 3 4 5 6 7 8 9)) r))
+    #t '((0 0) (0 1) (0 2) (1 0) (1 1) (1 2) (2 0) (2 1) (2 2)))
+
+; solve [][]int -> [][]int
+(define (solve board)
+  (print "ERROR - not implemented"))
 
 ; get-something : [][]int int -> []int
 (define (available-something board n) 
