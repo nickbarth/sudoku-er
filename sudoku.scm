@@ -100,58 +100,72 @@
       (print "ERROR - get-quad incorrect"))))
 (test-available-at-position)
 
+; rows-solved? : [][]int -> bool
+(define (rows-solved? board)
+  (fold (lambda (row r)
+    (and (equal? (sort row <) '(1 2 3 4 5 6 7 8 9)) r))
+      #t board))
+
+; test : rows-solved?
+(define (test-rows-solved) 
+  (let ((board `((1 2 3 4 5 6 7 8 9)
+                 (1 2 3 4 5 6 7 8 9)
+                 (1 2 3 4 5 6 7 8 9)
+                 (1 2 3 4 5 6 7 8 9)
+                 (1 2 3 4 5 6 7 8 9)
+                 (1 2 3 4 5 6 7 8 9)
+                 (1 2 3 4 5 6 7 8 9)
+                 (1 2 3 4 5 6 7 8 9)
+                 (1 2 3 4 5 6 7 8 9))))
+    (unless (rows-solved? board)
+      (print "ERROR - rows-solved? incorrect"))))
+(test-rows-solved)
+
+; cols-solved? : [][]int -> bool
+(define (cols-solved? board)
+  (fold (lambda (col r)
+    (and (equal? (sort (get-column board col) <) '(1 2 3 4 5 6 7 8 9)) r))
+      #t '(0 1 2 3 4 5 6 7 8)))
+
+; test : cols-solved?
+(define (test-cols-solved) 
+  (let ((board `((1 1 1 1 1 1 1 1 1)
+                 (2 2 2 2 2 2 2 2 2)
+                 (3 3 3 3 3 3 3 3 3)
+                 (4 4 4 4 4 4 4 4 4)
+                 (5 5 5 5 5 5 5 5 5)
+                 (6 6 6 6 6 6 6 6 6)
+                 (7 7 7 7 7 7 7 7 7)
+                 (8 8 8 8 8 8 8 8 8)
+                 (9 9 9 9 9 9 9 9 9))))
+    (unless (cols-solved? board)
+      (print "ERROR - cols-solved? incorrect"))))
+(test-cols-solved)
+
+; quads-solved? : [][]int -> bool
+(define (quads-solved? board)
+  (fold (lambda (quad r)
+    (and (equal? (sort (get-quad board (car quad) (cadr quad)) <) '(1 2 3 4 5 6 7 8 9)) r))
+      #t '((0 0) (0 1) (0 2) (1 0) (1 1) (1 2) (2 0) (2 1) (2 2))))
+
+; test : quads-solved?
+(define (test-quads-solved) 
+  (let ((board `((1 2 3 1 2 3 1 2 3)
+                 (4 5 6 4 5 6 4 5 6)
+                 (7 8 9 7 8 9 7 8 9)
+                 (1 2 3 1 2 3 1 2 3)
+                 (4 5 6 4 5 6 4 5 6)
+                 (7 8 9 7 8 9 7 8 9)
+                 (1 2 3 1 2 3 1 2 3)
+                 (4 5 6 4 5 6 4 5 6)
+                 (7 8 9 7 8 9 7 8 9))))
+    (unless (quads-solved? board)
+      (print "ERROR - quad-solved? incorrect"))))
+(test-quads-solved)
+
 ; is-solved? : [][]int -> bool
 (define (is-solved? board)
-  
-)
-
-(define (make-board)
-  `((1 2 3 4 5 6 7 8 9)
-    (1 2 3 4 5 6 7 8 9)
-    (1 2 3 4 5 6 7 8 9)
-    (1 2 3 4 5 6 7 8 9)
-    (1 2 3 4 5 6 7 8 9)
-    (1 2 3 4 5 6 7 8 9)
-    (1 2 3 4 5 6 7 8 9)
-    (1 2 3 4 5 6 7 8 9)
-    (1 2 3 4 5 6 7 8 9)))
-
-(define (make-board)
-  `((1 1 1 1 1 1 1 1 1)
-    (2 2 2 2 2 2 2 2 2)
-    (3 3 3 3 3 3 3 3 3)
-    (4 4 4 4 4 4 4 4 4)
-    (5 5 5 5 5 5 5 5 5)
-    (6 6 6 6 6 6 6 6 6)
-    (7 7 7 7 7 7 7 7 7)
-    (8 8 8 8 8 8 8 8 8)
-    (9 9 9 9 9 9 9 9 9)))
-
-(define (make-board)
-  `((1 2 3 1 2 3 1 2 3)
-    (4 5 6 4 5 6 4 5 6)
-    (7 8 9 7 8 9 7 8 9)
-    (1 2 3 1 2 3 1 2 3)
-    (4 5 6 4 5 6 4 5 6)
-    (7 8 9 7 8 9 7 8 9)
-    (1 2 3 1 2 3 1 2 3)
-    (4 5 6 4 5 6 4 5 6)
-    (7 8 9 7 8 9 7 8 9)))
-
-; check rows
-(fold (lambda (row r)
-  (and (equal? (sort row <) '(1 2 3 4 5 6 7 8 9)) r))
-    #t (make-board))
-
-; check cols
-(fold (lambda (col r)
-  (and (equal? (sort (get-column (make-board) col) <) '(1 2 3 4 5 6 7 8 9)) r))
-    #t '(0 1 2 3 4 5 6 7 8))
-
-; check quad
-(fold (lambda (quad r)
-  (and (equal? (sort (get-quad (make-board) (car quad) (cadr quad)) <) '(1 2 3 4 5 6 7 8 9)) r))
-    #t '((0 0) (0 1) (0 2) (1 0) (1 1) (1 2) (2 0) (2 1) (2 2)))
+  (print "ERROR - not implemented"))
 
 ; solve [][]int -> [][]int
 (define (solve board)
