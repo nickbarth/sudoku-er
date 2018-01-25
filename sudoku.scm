@@ -20,7 +20,6 @@
     (print "ERROR - board should be 9x9")))
 (test-make-board)
 
-
 ; set-row : []int int []row -> []int
 (define (set-row board n row)
   (append (take board n) (list row) (drop board (+ n 1))))
@@ -174,7 +173,7 @@
 (define (is-solved? board)
   (and (rows-solved? board)
        (cols-solved? board)
-       (quad-solved? board)))
+       (quads-solved? board)))
 
 ; has-spaces? : [][]int -> bool
 (define (has-spaces? board)
@@ -218,7 +217,21 @@
       (let ((pos (find-space board)))
         (fold (lambda (n r)
           (let ((test-board (set-position board (car pos) (cadr pos) n)))
-            (if (solve test-board) test-board r)))
-          #f (avaliable-at-position (car pos) (cadr pos)))))))
+            (or (solve test-board) r)))
+          #f (avaliable-at-position board (car pos) (cadr pos)))))))
 
-(solve (make-board))
+(define (main)
+  (let ((board
+   '((0 0 2 0 0 0 5 0 0)
+     (0 1 0 7 0 5 0 2 0)
+     (4 0 0 0 9 0 0 0 7)
+     (0 4 9 0 0 0 7 3 0)
+     (8 0 1 0 3 0 4 0 9)
+     (0 3 6 0 0 0 2 1 0)
+     (2 0 0 0 8 0 0 0 4)
+     (0 8 0 9 0 2 0 6 0)
+     (0 0 7 0 0 0 8 0 0))))
+  (pp board)
+  (print "-----")
+  (pp (solve board))))
+(main)
