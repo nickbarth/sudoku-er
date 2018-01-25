@@ -2,7 +2,7 @@
 
 ; make-board :-> [][]int
 (define (make-board)
-  `((0 0 0 0 0 0 0 0 0)
+  `((0 0 0 0 0 0 0 0 9)
     (0 0 0 0 0 0 0 0 0)
     (0 0 0 0 0 0 0 0 0)
     (0 0 0 0 0 0 0 0 0)
@@ -12,10 +12,6 @@
     (0 0 0 0 0 0 0 0 0)
     (0 0 0 0 0 0 0 0 0)))
 
-; avaliable :-> []int
-(define (avaliable)
-  '(1 2 3 4 5 6 7 8 9))
-
 ; test : make-board
 (define (test-make-board)
   (unless (equal? (length (make-board)) 9)
@@ -24,11 +20,10 @@
     (print "ERROR - board should be 9x9")))
 (test-make-board)
 
-; set-row : [][]int int []row -> [][]int
+
+; set-row : []int int []row -> []int
 (define (set-row board n row)
-  (append 
-    (append (take board n) (list row))
-      (drop board (+ n 1))))
+  (append (take board n) (list row) (drop board (+ n 1))))
 
 ; test : set-row
 (define (test-set-row)
@@ -46,6 +41,18 @@
     (unless (equal? (get-row board 2) '(1 1 1))
       (print "ERROR - get-row incorrect"))))
 (test-get-row)
+
+; set-position : [][]int int int int -> [][]int
+(define (set-position board x y val)
+  (let ((row (get-row board y)))
+   (append (take board y) (list (set-row row x val)) (drop board (+ y 1)))))
+
+; test : set-position
+(define (test-set-position)
+  (let ((board '((0 0 0) (0 0 0))))
+    (unless (equal? (set-position board 1 1 1) '((0 0 0) (0 1 0)))
+      (print "ERROR - get-column incorrect"))))
+(test-set-position)
 
 ; get-column : [][]int int -> []int
 (define (get-column board n)
@@ -77,7 +84,7 @@
 (define (could-be nums)
   (fold (lambda (n r)
     (if (member n nums) r
-      (cons n r))) '() (avaliable)))
+      (cons n r))) '() '(1 2 3 4 5 6 7 8 9)))
 
 ; test : could-be
 (define (test-could-be)
@@ -107,7 +114,7 @@
       #t board))
 
 ; test : rows-solved?
-(define (test-rows-solved) 
+(define (test-rows-solved)
   (let ((board `((1 2 3 4 5 6 7 8 9)
                  (1 2 3 4 5 6 7 8 9)
                  (1 2 3 4 5 6 7 8 9)
@@ -128,7 +135,7 @@
       #t '(0 1 2 3 4 5 6 7 8)))
 
 ; test : cols-solved?
-(define (test-cols-solved) 
+(define (test-cols-solved)
   (let ((board `((1 1 1 1 1 1 1 1 1)
                  (2 2 2 2 2 2 2 2 2)
                  (3 3 3 3 3 3 3 3 3)
@@ -149,7 +156,7 @@
       #t '((0 0) (0 1) (0 2) (1 0) (1 1) (1 2) (2 0) (2 1) (2 2))))
 
 ; test : quads-solved?
-(define (test-quads-solved) 
+(define (test-quads-solved)
   (let ((board `((1 2 3 1 2 3 1 2 3)
                  (4 5 6 4 5 6 4 5 6)
                  (7 8 9 7 8 9 7 8 9)
@@ -160,7 +167,7 @@
                  (4 5 6 4 5 6 4 5 6)
                  (7 8 9 7 8 9 7 8 9))))
     (unless (quads-solved? board)
-      (print "ERROR - quad-solved? incorrect"))))
+      (print "ERROR - quads-solved? incorrect"))))
 (test-quads-solved)
 
 ; is-solved? : [][]int -> bool
@@ -169,13 +176,49 @@
        (cols-solved? board)
        (quad-solved? board)))
 
-; solve [][]int -> [][]int
+; has-spaces? : [][]int -> bool
+(define (has-spaces? board)
+  (if (member 0 (fold append '() board)) #t #f))
+
+; test : has-spaces?
+(define (test-has-spaces)
+  (let ((board `((1 1 1 1 1 1 1 1 1)
+                 (1 1 0 1 1 1 1 1 1))))
+    (unless (has-spaces? board)
+      (print "ERROR - has-spaces? incorrect"))))
+(test-has-spaces)
+
+; find-space [][]int -> []int{ x, y }
+(define (find-space board)
+  (fold (lambda (y r)
+    (let ((x (fold (lambda (n r) (if (eq? (list-ref (list-ref board y) n) 0) n r)) #f '(0 1 2 3 4 5 6 7 8))))
+      (if x (list x y) r))) #f '(0 1 2 3 4 5 6 7 8)))
+
+; test : find-space
+(define (test-find-space)
+  (let ((board `((1 1 1 1 1 1 1 1 1)
+                 (1 1 1 1 1 1 1 1 1)
+                 (1 1 1 1 1 1 1 1 1)
+                 (1 1 1 1 1 1 1 1 1)
+                 (1 1 1 1 1 1 1 1 1)
+                 (1 1 1 1 1 1 1 1 1)
+                 (1 1 1 1 1 1 1 1 1)
+                 (1 1 1 1 1 1 1 0 1)
+                 (1 1 1 1 1 1 1 1 1))))
+    (unless (equal? (find-space board) '(7 7))
+      (print "ERROR - find-space incorrect"))))
+(test-find-space)
+
+; solve [][]int -> [][]int || #f
 (define (solve board)
-  (print "ERROR - not implemented"))
+  (cond
+    ((is-solved? board) board)
+    ((not (has-spaces? board)) #f)
+    ((has-spaces? board)
+      (let ((pos (find-space board)))
+        (fold (lambda (n r)
+          (let ((test-board (set-position board (car pos) (cadr pos) n)))
+            (if (solve test-board) test-board r)))
+          #f (avaliable-at-position (car pos) (cadr pos)))))))
 
-; get-something : [][]int int -> []int
-(define (available-something board n) 
-  (print "ERROR - not implemented"))
-
-(define (test-get-something)
-  (print "ERROR - not implemented"))
+(solve (make-board))
