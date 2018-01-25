@@ -1,25 +1,7 @@
 (import chicken scheme)
 (use srfi-1)
-
-; make-board :-> [][]int
-(define (make-board)
-  `((0 0 0 0 0 0 0 0 9)
-    (0 0 0 0 0 0 0 0 0)
-    (0 0 0 0 0 0 0 0 0)
-    (0 0 0 0 0 0 0 0 0)
-    (0 0 0 0 0 0 0 0 0)
-    (0 0 0 0 0 0 0 0 0)
-    (0 0 0 0 0 0 0 0 0)
-    (0 0 0 0 0 0 0 0 0)
-    (0 0 0 0 0 0 0 0 0)))
-
-; test : make-board
-(define (test-make-board)
-  (unless (equal? (length (make-board)) 9)
-    (print "ERROR - board should be 9x9"))
-  (unless (equal? (length (car (make-board))) 9)
-    (print "ERROR - board should be 9x9")))
-(test-make-board)
+(use srfi-13)
+(use utils)
 
 ; set-row : []int int []row -> []int
 (define (set-row board n row)
@@ -231,39 +213,27 @@
           (let ((test-board (set-position board (car pos) (cadr pos) n)))
             (or (solve test-board) r))) #f (avaliable-at-position board (car pos) (cadr pos)))))))
 
-
+; pp : prints board
 (define (pp board)
   (for-each (lambda (row)
-    (print row)) board))
+    (for-each (lambda (n)
+      (display n) (display " ")) row) (print)) board))
 
-(define (main)
-  (let ((board
-   '((0 0 2 0 0 0 5 0 0)
-     (0 1 0 7 0 5 0 2 0)
-     (4 0 0 0 9 0 0 0 7)
-     (0 4 9 0 0 0 7 3 0)
-     (8 0 1 0 3 0 4 0 9)
-     (0 3 6 0 0 0 2 1 0)
-     (2 0 0 0 8 0 0 0 4)
-     (0 8 0 9 0 2 0 6 0)
-     (0 0 7 0 0 0 8 0 0))))
+; main
+(define (main board)
   (pp board)
   (print "-----")
-  (pp (solve board))))
-(main)
+  (pp (solve board)))
 
+; make-board : []int -> [][]int
+(define (make-board data board)
+  (if (null? data) board
+    (make-board (drop data 9) (append board (list (take data 9))))))
 
-; (with-input-from-file path (lambda () (let loop ((count 0)) (if (eof-object? (read-line)) count (loop (+ count 1)))))))
-; (with-input-from-file path (lambda () (let loop ((count 0) (c (read-char))) (if (eof-object? c) count (loop (if (char=? c #\newline) (+ count 1) count) (read-char))))))
-; (with-input-from-file "./sudoku.txt" (lambda () (let loop ((count 0)) (if (eof-object? (read-line)) count (loop (+ count 1)))))))
-; (let ((data (string-delete #\newline
-;             (string-delete #\space
-;        (read-all "sudoku.txt")))))
-;  data)
-; (string-length "123")
-; (string-delete #\space  "a d f a d f \n")
-; (string-delete #\newline  "a d f a d f \n")
-; (string-delete #\0 "1101")
-; (open-output-file "sudoku.txt")
-; (substring "1 2 4" 1)
-; (string->number "15")
+; main : argv read file
+(main (make-board
+  (map string->number
+  (map string (string->list
+  (string-delete #\newline
+  (string-delete #\space
+  (read-all (cadr (argv)))))))) '()))
