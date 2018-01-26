@@ -1,25 +1,19 @@
-; (import chicken scheme)
-; (import srfi-1)
-; (use srfi-1)
+(define (take xs n)
+  (if (zero? n)
+    '() (cons (car xs) (take (cdr xs) (- n 1)))))
 
-(define (take lis k)
-  (let recur ((lis lis) (k k))
-    (if (eq? 0 k) '() (cons (car lis)
-      (recur (cdr lis) (fx- k 1))))))
+(define (drop xs n)
+  (if (zero? n) xs (drop (cdr xs) (- n 1))))
 
-(define (drop lis k)
-  (let iter ((lis lis) (k k))
-    (if (eq? 0 k) lis (iter (cdr lis) (fx- k 1)))))
+(define (chunk xs n)
+  (if (pair? xs) (cons (take xs n) (chunk (drop xs n) n)) '() ))
 
-(define (fold kons knil lis1 . lists)
-  (if (pair? lists)
-      (let lp ((lists (cons lis1 lists)) (ans knil))  ; N-ary case
-  (receive (cars+ans cdrs) (%cars+cdrs+ lists ans)
-    (if (null? cars+ans) ans ; Done.
-        (lp cdrs (apply kons cars+ans)))))
-      (let lp ((lis lis1) (ans knil))     ; Fast path
-  (if (null-list? lis) ans
-      (lp (cdr lis) (kons (car lis) ans))))))
+(define (fold func init xs)
+  (if (null? xs)
+    init (func (car xs) (fold func init (cdr xs)))))
+
+(define (range n m)
+  (if (> 0 n) m (range (- n 1) (cons n m))))
 
 ; set-row : []int int []row -> []int
 (define (set-row board n row)
@@ -65,11 +59,12 @@
     (equal? 1-9 (fold (lambda (n r)
       (if (member n nums) (append r (list n)) r)) '() 1-9))))
 
-; rows-solved? : [][]int -> bool
-(define (rows-solved? board)
-  (fold (lambda (row r)
-    (and (has-1-9? row) r))
-      #t board))
+; has-1-9? : []int -> bool
+(define (has-1-9? nums)
+  (define (check n)
+    (or (zero? n)
+      (and (member n nums) (check (- n 1)))))
+    (check 9))
 
 ; cols-solved? : [][]int -> bool
 (define (cols-solved? board)
@@ -110,25 +105,12 @@
           (let ((test-board (set-position board (car pos) (cadr pos) n)))
             (or (solve test-board) r))) #f (avaliable-at-position board (car pos) (cadr pos)))))))
 
-
 ; (define (info) (%inline "document.getElementById" "info"))
 
-(define (range n m)
-  (if (> 0 n) m (range (- n 1) (cons n m))))
-
-;(range 80 '())
-
 (define (solve-btn-clicked)
- (%inline "console.log" "hello"))
-; (define (solve-btn) (%inline "document.getElementById" "solve-btn"))
-; (define (solve-btn) (%inline "document.getElementById" "solve-btn"))
-; (set! ".onclick" solve-btn (callback solve-btn-clicked))
-; (set! "click" (solve-btn) (callback solve-btn-clicked))
-; (set! document.onmousemove (callback solve-btn-clicked))
+(%inline "console.log" "hello"))
 (define (solve-btn) (%inline "document.getElementById" "solve"))
 (set! (".onclick" (solve-btn)) (callback solve-btn-clicked))
-
-;; (%inline "console.log" solve-btn)
 
 (let ((board 
  '( 0 0 2 0 0 0 5 0 0
@@ -145,35 +127,17 @@
       (set! ("value" input) (list-ref board n))
     )) (range 80 '-)))
 
-    ; (%inline "console.log" input)
+; make-board : []int -> [][]int
+(define (make-board xs)
+  (if (pair? xs) (cons (take xs 9) (make-board (drop xs 9))) '() ))
 
-; (define (solve-btn) (%inline "document.getElementById" "solve"))
-; (let ((board '(( 0 0 2 0 0 0 5 0 0 )
-;                ( 0 1 0 7 0 5 0 2 0 )
-;                ( 4 0 0 0 9 0 0 0 7 )
-;                ( 0 4 9 0 0 0 7 3 0 )
-;                ( 8 0 1 0 3 0 4 0 9 )
-;                ( 0 3 6 0 0 0 2 1 0 )
-;                ( 2 0 0 0 8 0 0 0 4 )
-;                ( 0 8 0 9 0 2 0 6 0 )
-;                ( 0 0 7 0 0 0 8 0 0 ))))
-;   (fold (lambda (n r)
-;     (%inline "document.getElementById" (string->number n)
-;     (+ n 1))) 0 (fold append '() board)))
-; (set! document.onmousemove (callback mouse-move))
+; main
+(define (show-solution data)
+  (let ((board (solve (make-board data))))
+    (for-each (lambda (n)
+      (let ((input (%inline "document.getElementById" n)))
+        (set! ("value" input) (list-ref board n))
+      )) (range 80 '-))))
 
-
-; (with-input-from-file path (lambda () (let loop ((count 0)) (if (eof-object? (read-line)) count (loop (+ count 1)))))))
-; (with-input-from-file path (lambda () (let loop ((count 0) (c (read-char))) (if (eof-object? c) count (loop (if (char=? c #\newline) (+ count 1) count) (read-char))))))
-; (with-input-from-file "./sudoku.txt" (lambda () (let loop ((count 0)) (if (eof-object? (read-line)) count (loop (+ count 1)))))))
-; (let ((data (string-delete #\newline
-;             (string-delete #\space
-;        (read-all "sudoku.txt")))))
-;  data)
-; (string-length "123")
-; (string-delete #\space  "a d f a d f \n")
-; (string-delete #\newline  "a d f a d f \n")
-; (string-delete #\0 "1101")
-; (open-output-file "sudoku.txt")
-; (substring "1 2 4" 1)
-; (string->number "15")
+(show-solution
+    (map (lambda (n) (.value (%inline "document.getElementById" n))) (range 80 '-)))
