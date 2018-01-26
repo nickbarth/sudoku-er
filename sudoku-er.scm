@@ -226,9 +226,9 @@
   (pp (solve board)))
 
 ; make-board : []int -> [][]int
-(define (make-board data board)
-  (if (null? data) board
-    (make-board (drop data 9) (append board (list (take data 9))))))
+(define (make-board board)
+  (if (pair? board)
+    (cons (take board 9) (make-board (drop board 9))) '() ))
 
 ; main : argv read file
 (main (make-board
@@ -236,4 +236,4 @@
   (map string (string->list
   (string-delete #\newline
   (string-delete #\space
-  (read-all (cadr (argv)))))))) '()))
+  (read-all (cadr (argv))))))))))
